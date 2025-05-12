@@ -1,7 +1,20 @@
 print("Hello from main.lua!")
-local file = io.open("data.bin", "rb")
-if file then
-    local data = file:read("*all")
-    print("Loaded data.bin, size: " .. #data .. " bytes")
-    file:close()
+
+if assets and assets["data.bin"] then
+    -- Using assets.bin (in-memory)
+    print("Loaded data.bin, size: " .. #assets["data.bin"] .. " bytes")
+else
+    -- Fallback to physfs (assets/)
+    local file, err = physfs.openRead("data.bin")
+    if not file then
+        print("Failed to open data.bin: " .. (err or "unknown error"))
+    else
+        local data, err = physfs.read(file)
+        if not data then
+            print("Failed to read data.bin: " .. (err or "unknown error"))
+        else
+            print("Loaded data.bin, size: " .. #data .. " bytes")
+        end
+        physfs.close(file)
+    end
 end
